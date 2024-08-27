@@ -1,16 +1,13 @@
 [tool.poetry]
-name = "Insight AI"
-version = "0.1.0"
-description = ""
-authors = ["Shreyas Waghnode <shreyasw496@gmail.com>"]
+name = "insight-ai"
+version = "0.0.1"
+description = "init"
+authors = ["sudhanshu-19102003 <sudhanshu19102003@gmail.com>"]
 readme = "README.md"
-package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.12"
-streamlit = "^1.36.0"
-termcolor = "2.4.0"
-lxml = "^5.2.2"
+pandas = "^2.2.2"
 
 
 [build-system]
