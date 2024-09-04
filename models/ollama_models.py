@@ -15,11 +15,9 @@ class OllamaModel:
         self.model_endpoint = "http://localhost:11434/api/generate"
         self.temperature = temperature
         self.model = model
-        self.system_prompt = system_prompt
         self.headers = {"Content-Type": "application/json"}
-        self.stop = stop
 
-    def generate_text(self, prompt):
+    def generate_text(self, prompt, system_prompt):
         """
         Generates a response from the Ollama model based on the provided prompt.
 
@@ -33,10 +31,9 @@ class OllamaModel:
             "model": self.model,
             "format": "json",
             "prompt": prompt,
-            "system": self.system_prompt,
+            "system": system_prompt,
             "stream": False,
             "temperature": self.temperature,
-            "stop": self.stop
         }
 
         try:
