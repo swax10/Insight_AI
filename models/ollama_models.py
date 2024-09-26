@@ -23,6 +23,7 @@ class OllamaModel:
 
         Parameters:
         prompt (str): The user query to generate a response for.
+        system_prompt (str): The system prompt to use.
 
         Returns:
         dict: The response from the model as a dictionary.
@@ -43,14 +44,32 @@ class OllamaModel:
                 data=json.dumps(payload)
             )
             
-            print("REQUEST RESPONSE", request_response)
+            print(f"REQUEST RESPONSE Status Code: {request_response.status_code}")
+            print(f"REQUEST RESPONSE Content: {request_response.text}")
+            
+            if request_response.status_code != 200:
+                raise requests.RequestException(f"API request failed with status code: {request_response.status_code}")
+            
             request_response_json = request_response.json()
-            response = request_response_json['response']
+            response = request_response_json.get('response')
+            
+            if not response:
+                raise ValueError("No 'response' key in the API response")
+            
             response_dict = json.loads(response)
-
+            
             print(f"\n\nResponse from Ollama model: {response_dict}")
-
+            
             return response_dict
         except requests.RequestException as e:
+            print(f"RequestException: {str(e)}")
             response = {"error": f"Error in invoking model! {str(e)}"}
+            return response
+        except json.JSONDecodeError as e:
+            print(f"JSONDecodeError: {str(e)}")
+            response = {"error": f"Error decoding JSON response! {str(e)}"}
+            return response
+        except Exception as e:
+            print(f"Unexpected error: {str(e)}")
+            response = {"error": f"Unexpected error occurred! {str(e)}"}
             return response
