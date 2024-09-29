@@ -1,15 +1,11 @@
 import sys
 import os
-import pandas as pd
-import numpy as np
+
 from langchain_community.document_loaders import PyPDFLoader, UnstructuredPDFLoader, PyPDFium2Loader
 from langchain_community.document_loaders import PyPDFDirectoryLoader, DirectoryLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from pathlib import Path
-import random
-import networkx as nx
-import seaborn as sns
-from pyvis.network import Network
+from utils.GraphVisualizer import GraphVisualizer
 import logging
 
 # Configure logging
@@ -74,34 +70,9 @@ class KnowledgeGraphGenerator:
 
             dfg1.to_csv(outputdirectory/"graph.csv", sep="|", index=False)
             df.to_csv(outputdirectory/"chunks.csv", sep="|", index=False)
-
-            dfg1.replace("", np.nan, inplace=True)
-            dfg1.dropna(subset=["node_1", "node_2", 'edge'], inplace=True)
-            dfg1['count'] = 4
-
-            # Calculate contextual proximity
-            dfg2 = self.contextual_proximity(dfg1)
-
-            # Merge dataframes
-            dfg = pd.concat([dfg1, dfg2], axis=0)
-            dfg = (
-                dfg.groupby(["node_1", "node_2"])
-                .agg({"chunk_id": ",".join, "edge": ','.join, 'count': 'sum'})
-                .reset_index()
-            )
-
-            if dfg.empty:
-                logging.error("No data available after merging and grouping.")
-                return None
-
-            # Create NetworkX graph
-            G = self.create_networkx_graph(dfg)
-            if G.number_of_nodes() == 0:
-                logging.error("Graph has no nodes.")
-                return None
-
-            # Generate interactive graph
-            self.generate_interactive_graph(G, outputdirectory)
+            gv = GraphVisualizer(dfg1, df)
+            G = gv.run()
+            
 
             return G
 

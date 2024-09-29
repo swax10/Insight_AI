@@ -29,7 +29,7 @@ def download_research_papers(search_topic, output_dir):
     arxiv_response = fetch_arxiv_papers(search_topic)
     paper_info_list, _ = extract_paper_info(arxiv_response)
 
-    for paper in paper_info_list:
+    for paper in paper_info_list[:1]:
         safe_title = sanitize_filename(paper['title'])
         filename = research_papers_dir / f"{safe_title}.pdf"
         download_paper(paper['pdf_url'], str(filename))

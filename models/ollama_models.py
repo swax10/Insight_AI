@@ -2,7 +2,7 @@ import requests
 import json
 
 class OllamaModel:
-    def __init__(self, model, system_prompt, temperature=0, stop=None):
+    def __init__(self, model, temperature=0):
         """
         Initializes the OllamaModel with the given parameters.
 
@@ -44,8 +44,6 @@ class OllamaModel:
                 data=json.dumps(payload)
             )
             
-            print(f"REQUEST RESPONSE Status Code: {request_response.status_code}")
-            print(f"REQUEST RESPONSE Content: {request_response.text}")
             
             if request_response.status_code != 200:
                 raise requests.RequestException(f"API request failed with status code: {request_response.status_code}")
@@ -55,6 +53,7 @@ class OllamaModel:
             
             if not response:
                 raise ValueError("No 'response' key in the API response")
+            
             
             response_dict = json.loads(response)
             

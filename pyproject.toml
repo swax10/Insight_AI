@@ -19,6 +19,9 @@ langchain-community = "^0.3.1"
 tqdm = "^4.66.5"
 unstructured = {extras = ["pdf"], version = "^0.15.13"}
 python-magic-bin = "^0.4.14"
+plotly = "^5.24.1"
+scikit-learn = "^1.5.2"
+python-louvain = "^0.16"
 
 
 [build-system]

@@ -1,9 +1,12 @@
 import uuid
 import pandas as pd
 import numpy as np
+from tqdm import tqdm
 from .prompts import extractConcepts
 from .prompts import graphPrompt
 
+# Enable tqdm for pandas
+tqdm.pandas()
 
 def documents2Dataframe(documents) -> pd.DataFrame:
     rows = []
@@ -20,16 +23,13 @@ def documents2Dataframe(documents) -> pd.DataFrame:
 
 
 def df2ConceptsList(dataframe: pd.DataFrame) -> list:
-    # dataframe.reset_index(inplace=True)
-    results = dataframe.apply(
+    results = dataframe.progress_apply(
         lambda row: extractConcepts(
             row.text, {"chunk_id": row.chunk_id, "type": "concept"}
         ),
         axis=1,
     )
-    # invalid json results in NaN
-    results = results.dropna()
-    results = results.reset_index(drop=True)
+    results = results.dropna().reset_index(drop=True)
 
     ## Flatten the list of lists to one single list of entities.
     concept_list = np.concatenate(results).ravel().tolist()
@@ -48,13 +48,11 @@ def concepts2Df(concepts_list) -> pd.DataFrame:
 
 
 def df2Graph(dataframe: pd.DataFrame, model=None) -> list:
-    # dataframe.reset_index(inplace=True)
-    results = dataframe.apply(
+    results = dataframe.progress_apply(
         lambda row: graphPrompt(row.text, {"chunk_id": row.chunk_id}, model), axis=1
     )
-    # invalid json results in NaN
-    results = results.dropna()
-    results = results.reset_index(drop=True)
+    print(results)
+    results = results.dropna().reset_index(drop=True)
 
     ## Flatten the list of lists to one single list of entities.
     concept_list = np.concatenate(results).ravel().tolist()
@@ -69,3 +67,4 @@ def graph2Df(nodes_list) -> pd.DataFrame:
     graph_dataframe["node_2"] = graph_dataframe["node_2"].apply(lambda x: x.lower())
 
     return graph_dataframe
+
