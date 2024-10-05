@@ -1,0 +1,459 @@
+text|source|chunk_id
+"2 2 0 2
+
+r p A 5 2
+
+] L C . s c [
+
+2 v 8 7 1 0 1 . 4 0 2 2 : v i X r a
+
+Doctor XAvIer: Explainable Diagnosis on Physician-Patient Dialogues and XAI Evaluation
+
+Hillary Ngai1,2 and Frank Rudzicz1,2,3
+
+1Department of Computer Science, University of Toronto 2Vector Institute for Artiﬁcial Intelligence 3Unity Health Toronto hngai@cs.toronto.edu, frank@spoclab.com
+
+1
+
+Abstract
+
+We introduce Doctor XAvIer —a BERT-based diagnostic system that extracts relevant clin- ical data from transcribed patient-doctor dia- logues and explains predictions using feature attribution methods. We present a novel perfor- mance plot and evaluation metric for feature at- tribution methods —Feature Attribution Drop- ping (FAD) curve and its Normalized Area Un- der the Curve (N-AUC). FAD curve analysis shows that integrated gradients outperforms Shapley values in explaining diagnosis classi- ﬁcation. Doctor XAvIer outperforms the base- line with 0.97 F1-score in named entity recog- nition and symptom pertinence classiﬁcation and 0.91 F1-score in diagnosis classiﬁcation.
+
+Introduction
+
+Speaker Utterance DR
+
+So how are you feeling [PATIENT NAME]? O O O O O O Not good. I’m having back and neck pain. O O O O B-symptom O B-symptom I-symptom And when did this start? O B-time-expr O O B-time-expr Around three days ago. O B-time-expr I-time-expr I-time-expr I see. Do you take any pain killers? O O O O O O B-medication I-medication Yes, acetaminophen and ibuprofen. O B-medication O B-medication
+
+PT
+
+DR
+
+PT
+
+DR"|research_papers\Doctor_XAvIer_Explainable_Diagnosis_on_Physician-P.pdf|ab466248420347bfac6948e914ae3908
+"PT
+
+DR
+
+PT
+
+DR
+
+PT
+
+Table 1: Synthetic physician-patient dialogue with IOB labels. The IOB labels are italicized underneath each utterance. The B- preﬁx indicates that the token is the beginning of an entity label, the I- preﬁx indicates that the token is inside the entity label, and the O indicates that the token belongs to no entity label.
+
+Previous studies have shown that electronic med- ical record (EMR) data are difﬁcult to use in ma- chine learning systems due to the lack of regulation in data quality —EMR data are often incomplete and inconsistent (Weiskopf and Weng, 2013; Roth et al., 2009). Recently, there have been attempts to improve automated clinical note-taking by extract- ing relevant information directly from physician- patient dialogues (Khattak et al., 2019; Kazi and Kahanda, 2019; Du et al., 2019). This can alleviate physicians of tedious data entry and ensures more consistent data quality (Collier, 2017)."|research_papers\Doctor_XAvIer_Explainable_Diagnosis_on_Physician-P.pdf|e4e8b5219b0440568cb8fba939e445c0
+"and tf-idf was used for text classiﬁcation. Although there is existing work that employs more sophis- ticated NLP techniques to patient-physician dia- logues (Krishna et al., 2020; Selvaraj and Konam, 2019), there is a lack of end-to-end diagnostic sys- tems that employ such techniques. Furthermore, all of the previous works mentioned fail to address the black-box nature of deep learning in the medical industry. Most physicians are reluctant to rely on opaque, AI-based medical technology —especially in high-risk decision-making involving patient well- being (Gerke et al., 2020).
+
+Due to the potential in reducing costs associated with collecting patient information and diagnostic errors, there is increasing interest in using informa- tion extraction techniques in automatic diagnostic systems (Xu et al., 2019; Wei et al., 2018). Je- blee et al. (2019) introduced a system that extracts pertinent medical information from clinical con- versations for automatic note taking and diagno- sis. However, their methodology did not explore state-of-the-art natural language processing (NLP) techniques —entity extraction was done by search- ing the transcript for entities from medical lexicons"|research_papers\Doctor_XAvIer_Explainable_Diagnosis_on_Physician-P.pdf|dd6ada34f21948aa8439265a3a939b66
+"In this work, we present Doctor XAvIer —a BERT-based diagnostic system that extracts rel- evant clinical data from transcribed patient-doctor dialogues and explains predictions using feature at- tribution methods. Feature attribution methods are explainable AI (XAI) methods that compute an at- tribution score for each input feature to represent its contribution to the model’s prediction. We report feature attribution scores using integrated gradients (IG) (Sundararajan et al., 2017) and Shapley values (Lundberg and Lee, 2017) to provide insight as to
+
+which features are important in diagnosis classiﬁca- tion. Descriptions of integrated gradients and Shap- ley values are provided in Appendix A. Feature attribution scores could potentially help physicians build conﬁdence in the model’s prediction or give additional insight about the relationships between different diseases and relevant patient information (Markus et al., 2021). Finally, we present a novel performance plot and evaluation metric for feature attribution methods —the Feature Attribution Drop- ping (FAD) curve and its Normalized Area Under the Curve (N-AUC).
+
+2 FAD Curve Analysis
+
+We introduce Feature Attribution Dropping (FAD) curve analysis for evaluating feature attribution methods. FAD curve analysis requires no modi- ﬁcations to the original machine learning model and is simple to implement.
+
+2.1 FAD Curve"|research_papers\Doctor_XAvIer_Explainable_Diagnosis_on_Physician-P.pdf|bd2599f2863d46708b1e43460b2f872e
+"2.1 FAD Curve
+
+The FAD curve illustrates the explainability of a feature attribution method by plotting the perfor- mance metric (e.g., accuracy) against the percent- age of features dropped in descending order of im- portance ranked by the feature attribution method (see Fig. 1). We deﬁne the feature importance as the absolute value of the feature attribution score to represent the magnitude of the contribution of each feature to the model’s prediction. Features are dropped by modeling the absence of such fea- tures in the input. For standard machine learning inputs, continuous features can sometimes be set to their means or image pixels can sometimes be set to black (Sundararajan et al., 2017). A careful consideration of the nature of the data is, of course, required beforehand.
+
+The intuition behind FAD curves is inspired by counterfactual explanations —which describes how the prediction of a model changes when the input is perturbed (Wachter et al., 2018) —and the Pareto principle —which states that for many situations, approximately 80% of the outcome is due to 20% of causes (the ""vital few"") (Pareto, 1964; Roccetti et al., 2021). If a feature attribution method accu- rately ranks the most important features for a cer- tain prediction and the Pareto principle holds true, then cumulatively dropping the most important fea- tures in descending order should yield a smaller and smaller decrease in model performance for that prediction. In other words, the model’s ability to"|research_papers\Doctor_XAvIer_Explainable_Diagnosis_on_Physician-P.pdf|68119a1fe5864f3f9333ed0d62a09623
+"Figure 1: Example of an idealized FAD curve with β=20. The maximum FAD Curve AUC bounded from 0% to β% is shaded in pink. The actual FAD curve AUC bounded from 0% to β% is shaded in blue and overlaps the pink area. The N-AUC is the ratio of the blue area to the pink area.
+
+make correct predictions is mostly attributed to a small subset of important features. This entails that the steeper the FAD curve is early on, the better the feature attribution method.
+
+2.2 N-AUC
+
+We present the FAD curve Normalized Area Under the Curve (N-AUC) as a performance metric for feature attribution methods. An intuitive way to quantify how much the FAD curve decreases early on is to calculate the Area Under the Curve (AUC) bounded from 0% to β% of features dropped in descending order of importance. We choose β=20 using the Pareto principle, but this number is just an estimate."|research_papers\Doctor_XAvIer_Explainable_Diagnosis_on_Physician-P.pdf|0e4fdb05eea04082aa3752ce645acea8
+"Since steeper FAD curves have smaller AUCs, FAD curves with smaller AUCs indicate a better feature attribution method than FAD curves with larger AUCs. The area under the curve is approxi- mated using the trapezoidal rule (Tai, 1994), as de- scribed in Appendix B. Although any performance metric can be used for FAD Curve analysis, we will use accuracy in our explanation for the sake of simplicity. The range of the FAD curve AUC is (0, β × max(accuracy)] where max(accuracy) is the maximum FAD curve accuracy of all the fea- ture attribution methods for a model’s prediction and β is the x-axis upper bound. Note that the min- imum FAD curve AUC can only equal zero if the model performance is zero in the bounded range. This case is excluded from FAD curve analysis since this scenario is rare and uninformative. In order to easily compare feature attribution methods,
+
+we normalize the FAD curve AUC:
+
+N -AU C =
+
+AU C β × max(accuracy)
+
+Thus, the range of the FAD curve N-AUC is (0, 1].
+
+3 Methods and Experiments
+
+We introduce Doctor XAvIer —a medical diagnos- tic system composed of joint Named Entity Recog- nition (NER) and intent (i.e. symptom pertinence) classiﬁcation, primary diagnosis classiﬁcation, and FAD curve analysis. In this section we discuss each component in detail and evaluate each component.
+
+3.1 Dataset"|research_papers\Doctor_XAvIer_Explainable_Diagnosis_on_Physician-P.pdf|c1983003e2a54f659116f302244c2878
+"3.1 Dataset
+
+The Verilogue dataset (Jeblee et al., 2019) is a col- lection of 800 physician-patient dialogues as audio ﬁles and their corresponding human-generated tran- scripts with speaker labels. Each dialogue includes the patient’s information as well as the primary di- agnosis. The distribution of the primary diagnoses in the dataset is shown in Appendix C. The patient’s information consists of the patient’s age, gender, height, weight, blood pressure, smoking status, em- ployment status, and ongoing treatments. Entities —including symptoms, medications, anatomical locations, time expressions, and therapies —are an- notated by physicians in each transcript. Additional details about the dataset can be found in Jeblee et al. (2019).
+
+3.2
+
+Joint NER and Intent Classiﬁcation"|research_papers\Doctor_XAvIer_Explainable_Diagnosis_on_Physician-P.pdf|8a434a5a769b40738cdaa0ab0b16aab3
+"3.2
+
+Joint NER and Intent Classiﬁcation
+
+A diagnosis requires relevant clinical entities and a measure of pertinence of such entities. For exam- ple, a patient might mention a relevant symptom that was experienced by someone else and there- fore not pertinent to diagnosis. For each sequence in the physician-patient dialogue, we extract clini- cal entities with NER and classify the intent of the speaker. We identify the clinical entities identiﬁed in Table 2. We label each word in each sequence in the dataset using the Inside-Outside-Beginning (IOB) format (Ramshaw and Marcus, 1995). In this paper, we focus on identifying the pertinence of symptoms. We deﬁne the intents of the patient as: conﬁrm/deny/unsure of symptom and the intent of both the patient and physician as: closing (i.e., ending the conversation). Of the 407 annotated dialogues we randomly select 40 to use as a test set for NER and intent classiﬁcation.
+
+We ﬁne-tune Bio+Clinical BERT (Alsentzer et al., 2019) jointly on these two classiﬁcation tasks.
+
+(1)"|research_papers\Doctor_XAvIer_Explainable_Diagnosis_on_Physician-P.pdf|20fc80809fe240b393de33ebcadab424
+"We ﬁne-tune Bio+Clinical BERT (Alsentzer et al., 2019) jointly on these two classiﬁcation tasks.
+
+(1)
+
+This model was initialized from BioBERT (Lee et al., 2019) and trained on all notes from MIMIC- III (Johnson et al., 2016) —a database containing electronic health records from ICU patients. Lan- guage models pre-trained on domain-speciﬁc text yield improvements on clinical NLP tasks as com- pared to language models pre-trained on a general corpus (Grouchy et al., 2020). Since a majority of interactions between the physician and patient in the dataset are in question-and-answer format, it is beneﬁcial to concatenate the previous sequence with the current sequence, including the respective speaker codes, to give more context to the model. This is done for each sequence before tokenization and improves NER accuracy from 89% to 96%."|research_papers\Doctor_XAvIer_Explainable_Diagnosis_on_Physician-P.pdf|93e3b7bdfc724299abab15ebd7d0656b
+"For NER, we concatenate the last four hidden layers of Bio+Clinical BERT and feed this repre- sentation into an output layer for token-level clas- siﬁcation. For intent classiﬁcation, we feed the [CLS] representation of Bio+Clinical BERT into an output layer for sequence classiﬁcation. We train with a batch size of 16 sequences and a maxi- mum sequence length of 128 tokens for 5 epochs and select the model with the lowest validation loss. We use AdamW with learning rate of 2e-5, β1 = 0.9, β2 = 0.999, L2 weight decay of 0.01, and linear decay of the learning rate (Loshchilov and Hutter, 2017). We use a dropout probability of 0.1 on all layers except the output layers.
+
+For the loss function, we propose a linear in- terpolation between the intent classiﬁcation Cross- Entropy (CE) loss and the average NER Negative Log Likelihood (NLL) loss with α = 0.5. The intent classiﬁcation CE loss is deﬁned as:
+
+L1(f1(x; θ), y1) = −
+
+N (cid:88)
+
+y1,ilogf1,i(xi; θ) (2)
+
+i=1
+
+where f1,i(x; θ) is the ith element of the softmax output of the intent classes, y1,i is the ith element of the one-hot-encoded intent label, N is the number of intent classes, x is the input, and θ is the set of model parameters. The average NER NLL loss is deﬁned as:
+
+L2(f2(x; θ), y2) = −
+
+(cid:80)M
+
+j=1 logf2,j(xj; θ) M
+
+(3)
+
+where f2,j(x; θ) is the softmax output of the entity classes —for each token in the sequence —at the target class j, y2 is the set of entity labels, and"|research_papers\Doctor_XAvIer_Explainable_Diagnosis_on_Physician-P.pdf|e612c5933c484e00869818ede03ed9b8
+"Entity Other Anatomical Location Bodily Function Diagnosis Therapy Medication Referral Symptom Substance Use Time Expression Weighted Avg
+
+Instances P 158,018 598 6 1,345 1420 3,324 256 3,574 68 4,062 172,671
+
+0.98 0.73 0.00 0.79 0.62 0.90 0.71 0.57 0.00 0.90 0.97
+
+R 0.98 0.65 0.00 0.75 0.69 0.81 0.79 0.66 0.00 0.84 0.96
+
+F1 0.98 0.69 0.00 0.77 0.65 0.85 0.74 0.61 0.00 0.87 0.97
+
+Table 2: Named entity recognition results.
+
+Instances P Intent 228 Conﬁrm Symptom 52 Deny Symptom Unsure of Symptom 73 28 Closing 6,425 Other 6,806 Weighted Avg
+
+0.70 0.73 0.34 0.29 0.99 0.97
+
+R 0.69 0.69 0.65 0.47 0.99 0.97
+
+F1 0.70 0.71 0.62 0.36 0.99 0.97
+
+Table 3: Intent classiﬁcation results.
+
+M is the number tokens in the sequence. The full loss function is deﬁned in Appendix D.1. [PAD] tokens are excluded from the loss function using masking.
+
+As seen in Table 2 and Table 3, the model yields approximately 0.97 weighted precision, recall, and F1-score on both tasks, outperforming Jeblee et al. (2019)’s models. However, the exact results are difﬁcult to compare since Jeblee et al. (2019) tested their model on a smaller subset of the dataset.
+
+3.3 Primary Diagnosis Classiﬁcation"|research_papers\Doctor_XAvIer_Explainable_Diagnosis_on_Physician-P.pdf|342ee28fddb949f4b7fd14f974b3a573
+"3.3 Primary Diagnosis Classiﬁcation
+
+We classify the primary diagnosis for each physician-patient dialogue using the the patient’s information —such as the patient’s age, weight, blood pressure, and smoking status —and the ex- tracted symptoms from the conversation. Since the same symptom can be said in various differ- ent ways, we compile a set of symptoms of all the diseases in the dataset according to WedMD and assign each extracted symptom to one of the pre- deﬁned symptoms. We use a pre-trained Sentence- BERT (SBERT) model (Reimers and Gurevych, 2019) to embed each extracted symptom and all the pre-deﬁned symptoms. Each extracted symptom is assigned to its most similar pre-deﬁned symp- tom measured by the cosine similarity between the SBERT embeddings (Ngai et al., 2021). The most
+
+similar pre-deﬁned symptom is deﬁned as:
+
+s∗ i = arg max
+
+si
+
+sim(emb(ej), emb(si)) ∀si ∈ S
+
+(4) where S = {s1, ..., sN } is the set of symptoms of all diseases in the dataset, si is the ith symptom in S, ej is the jth extracted symptom, emb(x) is the SBERT embedding of text x, and sim(a, b) is the cosine similarity between embeddings a and b. The assigned pre-deﬁned symptom is:
+
+e∗ j =
+
+(cid:40)
+
+i , if sim(emb(ej), emb(s∗ s∗ N one
+
+i )) ≥ (cid:15)"|research_papers\Doctor_XAvIer_Explainable_Diagnosis_on_Physician-P.pdf|5a53847d4bd0469eb8f59b795d07d48c
+"e∗ j =
+
+(cid:40)
+
+i , if sim(emb(ej), emb(s∗ s∗ N one
+
+i )) ≥ (cid:15)
+
+(5) where (cid:15) is a constant and N one represents that we do not use the extracted symptom ej for clas- siﬁcation. We chose (cid:15) = 0.35 since it minimized incorrect assignments of extracted symptoms in the dataset while ﬁltering out less than 10% of ex- tracted symptoms.
+
+The diagnosis classiﬁcation model is a neural network composed of 549 input features and three hidden layers with 182K total parameters. The in- put features consists of patient information and the pertinence of extracted symptoms from the con- versation. The model is evaluated using stratiﬁed 5-fold cross-validation. We train with a batch size of 32 for 100 epochs and select the model with the lowest validation loss. We use Adam (Kingma and Ba, 2017) with learning rate of 1e-3, β1 = 0.9, β2 = 0.999, and (cid:15) = 1e-08. We use a GELU activation (Hendrycks and Gimpel, 2016) on all hidden layers. The training loss is the standard CE loss.
+
+As seen in Table 4, Doctor XAvIer yields a sig- niﬁcant improvement in weighted precision, recall, and F1-score for diagnosis classiﬁcation compared to the baseline (Jeblee et al., 2019).
+
+3.4 Evaluation of Explainability Methods"|research_papers\Doctor_XAvIer_Explainable_Diagnosis_on_Physician-P.pdf|d5bac4d653854a1097308639cfcc17a5
+"3.4 Evaluation of Explainability Methods
+
+For each test fold and model trained on the train fold in the stratiﬁed 5-fold cross-validation of the diagnosis classiﬁcation model, we evaluate each feature attribution method using FAD curve analy- sis. We choose accuracy as the performance metric for FAD curve analysis.
+
+As seen in Table 5, integrated gradients outper- forms Shapley values according to FAD curve anal- ysis —achieving smaller N-AUCs for all diagnoses. As seen in Figures 2, 3, and 4 and Appendix F.2, integrated gradients yields noticeably steeper FAD curves than Shapley values for all of the diagnoses except Type II Diabetes. The sporadic shapes of
+
+Diagnosis ADHD
+
+Depression
+
+Osteoporosis
+
+Inﬂuenza
+
+COPD
+
+Model Doctor XAvIer (Jeblee et al., 2019) Doctor XAvIer (Jeblee et al., 2019) Doctor XAvIer (Jeblee et al., 2019) Doctor XAvIer (Jeblee et al., 2019) Doctor XAvIer (Jeblee et al., 2019)
+
+Type II Diabetes Doctor XAvIer
+
+Other
+
+Weighted Avg
+
+(Jeblee et al., 2019) Doctor XAvIer (Jeblee et al., 2019) Doctor XAvIer (Jeblee et al., 2019)
+
+P 0.95 0.84 0.92 0.80 0.85 0.81 1.00 0.91 0.93 0.75 0.52 0.81 0.73 0.71 0.91 0.82
+
+R 0.97 0.84 0.93 0.64 0.69 0.78 0.99 0.95 0.93 0.65 0.47 0.75 0.80 0.82 0.91 0.80
+
+Table 4: K-fold cross-validation primary diagnosis clas- siﬁcation results.
+
+Diagnosis ADHD Depression Osteoporosis Inﬂuenza COPD Type II Diabetes Other
+
+Instances 20 14 5 19 11 3 9
+
+IG 0.48 0.63 0.24 0.72 0.33 0.59 0.71
+
+Shapley 0.77 0.85 0.36 0.95 0.59 0.73 0.95"|research_papers\Doctor_XAvIer_Explainable_Diagnosis_on_Physician-P.pdf|37df1693976a43c18dc1784d2e4bbe03
+"Instances 20 14 5 19 11 3 9
+
+IG 0.48 0.63 0.24 0.72 0.33 0.59 0.71
+
+Shapley 0.77 0.85 0.36 0.95 0.59 0.73 0.95
+
+Table 5: K-fold cross-validation FAD curve N-AUC from 0% to 20% of dropped features comparing inte- grated gradients and Shapley values.
+
+the Type II Diabetes FAD curves can potentially be explained by the lack of dialogues with Type II Diabetes as their primary diagnosis —there are only 3 instances. This suggests that we could po- tentially improve performance by collecting more instances of the infrequent classes or performing regularization.
+
+It is important to note that some features in the dataset may be correlated. Therefore, dropping fea- tures that are correlated with other features may lead to an increase —instead of a decrease —in the performance metric despite dropping features in descending order of importance. We could po- tentially mitigate this by using feature selection methods before performing FAD curve analysis.
+
+4 Conclusion
+
+Doctor XAvIer yields signiﬁcant improvements in NER, symptom pertinence classiﬁcation, and di- agnosis classiﬁcation compared to previous work (Jeblee et al., 2019), while also explaining why the model made each diagnosis. We also present a novel performance plot and evaluation metric for
+
+F1 0.96 0.83 0.92 0.71 0.75 0.78 0.99 0.93 0.93 0.68 0.48 0.76 0.76 0.76 0.91 0.80
+
+Figure 2: K-fold cross-validation ADHD and Depres- sion FAD curves.
+
+Figure 3: K-fold cross-validation COPD and Type II Diabetes FAD curves."|research_papers\Doctor_XAvIer_Explainable_Diagnosis_on_Physician-P.pdf|a55946fd68ec4e9f9f3be1ce28d04c1f
+"Figure 2: K-fold cross-validation ADHD and Depres- sion FAD curves.
+
+Figure 3: K-fold cross-validation COPD and Type II Diabetes FAD curves.
+
+feature attribution methods —FAD curve analysis and its N-AUC. FAD curve analysis shows that in- tegrated gradients outperforms Shapley values in explaining diagnosis classiﬁcation in the Verilogue dataset. In our future work, we will calculate β in a data-driven manner to standardize FAD curve anal- ysis for a given dataset. We will also apply FAD curve analysis to other feature attribution methods, AI domains, and datasets to evaluate its generaliz- ability.
+
+Figure 4: K-fold cross-validation Osteoporosis and In- ﬂuenza FAD curves.
+
+References
+
+Emily Alsentzer, John R. Murphy, Willie Boag, Wei- Hung Weng, Di Jin, Tristan Naumann, and Matthew B. A. McDermott. 2019. Publicly available clinical BERT embeddings. CoRR, abs/1904.03323.
+
+Roger Collier. 2017.
+
+Electronic health records CMAJ,
+
+contributing to physician burnout. 189(45):E1405–E1406.
+
+Nan Du, Kai Chen, Anjuli Kannan, Linh Tran, Yuhui Chen, and Izhak Shafran. 2019. Extracting symp- toms and their status from clinical conversations. In Proceedings of the 57th Annual Meeting of the As- sociation for Computational Linguistics, pages 915– 925, Florence, Italy. Association for Computational Linguistics."|research_papers\Doctor_XAvIer_Explainable_Diagnosis_on_Physician-P.pdf|4241c8efdf444348b9f184a7a2bc6399
+"Sara Gerke, Timo Minssen, and Glenn Cohen. 2020. Ethical and legal challenges of artiﬁcial intelligence- driven healthcare. National Center for Biotechnol- ogy Information, pages 295–336.
+
+Paul Grouchy, Shobhit Jain, Michael Liu, Kuhan Wang, Max Tian, Nidhi Arora, Hillary Ngai, Faiza Khan Khattak, Elham Dolatabadi, and Sedef Akinli Koçak. 2020. An experimental evaluation of transformer- based language models in the biomedical domain. CoRR, abs/2012.15419.
+
+Dan Hendrycks and Kevin Gimpel. 2016. Bridging nonlinearities and stochastic regularizers with gaus- sian error linear units. CoRR, abs/1606.08415.
+
+Serena Jeblee, Faiza Khan Khattak, Noah Crampton, Muhammad Mamdani, and Frank Rudzicz. 2019. information from physician- Extracting relevant patient dialogues for automated clinical note tak- ing. In Proceedings of the Tenth International Work- shop on Health Text Mining and Information Analy- sis (LOUHI 2019), pages 65–74, Hong Kong. Asso- ciation for Computational Linguistics.
+
+Alistair EW Johnson, Tom J Pollard, Lu Shen, Li- wei H Lehman, Mengling Feng, Mohammad Ghas- semi, Benjamin Moody, Peter Szolovits, Leo An- thony Celi, and Roger G Mark. 2016. MIMIC-III, a freely accessible critical care database. Scientiﬁc data, 3(1):1–9."|research_papers\Doctor_XAvIer_Explainable_Diagnosis_on_Physician-P.pdf|ca43bfba064141eb9c5644fabaeef433
+"Nazmul Kazi and Indika Kahanda. 2019. Automat- ically generating psychiatric case notes from digi- tal transcripts of doctor-patient conversations. In Proceedings of the 2nd Clinical Natural Language Processing Workshop, pages 140–148, Minneapo- lis, Minnesota, USA. Association for Computational Linguistics.
+
+Faiza Khattak, Serena Jeblee, Noah Crampton, Muham- mad Mamdani, and Frank Rudzicz. 2019. Auto- scribe: Extracting clinically pertinent information from patient-clinician dialogues. Studies in health technology and informatics, 264:1512–1513.
+
+Diederik P. Kingma and Jimmy Ba. 2017. Adam: A International
+
+method for stochastic optimization. Conference on Learning Representations.
+
+Kundan Krishna, Amy Pavel, Benjamin Schloss, Jef- frey P. Bigham, and Zachary C. Lipton. 2020. Extracting structured data from physician-patient conversations by predicting noteworthy utterances. CoRR, abs/2007.07151.
+
+Jinhyuk Lee, Wonjin Yoon,
+
+Sungdong Kim, Donghyeon Kim, Sunkyu Kim, Chan Ho So, and Jaewoo Kang. 2019. BioBERT: a pre-trained biomedical for biomedical text mining. CoRR, abs/1901.08746.
+
+language representation model
+
+Ilya Loshchilov and Frank Hutter. 2017. weight decay regularization in Adam. abs/1711.05101.
+
+Fixing CoRR,
+
+Scott M. Lundberg and Su-In Lee. 2017. A uniﬁed approach to interpreting model predictions. CoRR, abs/1705.07874."|research_papers\Doctor_XAvIer_Explainable_Diagnosis_on_Physician-P.pdf|c8c4226fef704d67874b026a213a0962
+"Fixing CoRR,
+
+Scott M. Lundberg and Su-In Lee. 2017. A uniﬁed approach to interpreting model predictions. CoRR, abs/1705.07874.
+
+Aniek F. Markus, Jan A. Kors, and Peter R. Rijnbeek. 2021. The role of explainability in creating trustwor- thy artiﬁcial intelligence for health care: A compre- hensive survey of the terminology, design choices, and evaluation strategies. Journal of Biomedical In- formatics, 113:103655.
+
+Hillary Ngai, Yoona Park, John Chen, and Mah- boobeh Parsapoor. 2021. Transformer-based mod- els for question answering on COVID19. CoRR, abs/2101.11432.
+
+Vilfredo Pareto. 1964. Cours d’économie politique,
+
+volume 1. Librairie Droz.
+
+Lance Ramshaw and Mitch Marcus. 1995. Text chunk- In Third
+
+ing using transformation-based learning. Workshop on Very Large Corpora.
+
+Nils Reimers and Iryna Gurevych. 2019. Sentence- BERT: Sentence embeddings using siamese bert- networks. CoRR, abs/1908.10084.
+
+Marco Roccetti, Giovanni Delnevo, Luca Casini, and Silvia Mirri. 2021. An alternative approach to di- mension reduction for pareto distributed data: a case study. Journal of Big Data.
+
+Carol P. Roth, Yee-Wei Lim, Joshua M. Pevnick, Steven M. Asch, and Elizabeth A. McGlynn. 2009. The challenge of measuring quality of care from the electronic health record. American Journal of Medi- cal Quality, 24(5):385–394. PMID: 19482968.
+
+Sai P. Selvaraj and Sandeep Konam. 2019. Medica- tion regimen extraction from clinical conversations. CoRR, abs/1912.04961."|research_papers\Doctor_XAvIer_Explainable_Diagnosis_on_Physician-P.pdf|7786c18430ad42f5afaa45ee74e64419
+"Sai P. Selvaraj and Sandeep Konam. 2019. Medica- tion regimen extraction from clinical conversations. CoRR, abs/1912.04961.
+
+Mukund Sundararajan and Amir Najmi. 2019. The many shapley values for model explanation. CoRR, abs/1908.08474.
+
+Mukund Sundararajan, Ankur Taly, and Qiqi Yan. 2017.
+
+Axiomatic attribution for deep networks.
+
+Mary M Tai. 1994. A mathematical model for the de- termination of total area under glucose tolerance and other metabolic curves. Diabetes care, 17(2):152– 154.
+
+Sandra Wachter, Brent Mittelstadt, and Chris Russell. 2018. Counterfactual explanations without opening the black box: Automated decisions and the GDPR.
+
+Zhongyu Wei, Qianlong Liu, Baolin Peng, Huaixiao Tou, Ting Chen, Xuanjing Huang, Kam-fai Wong, and Xiangying Dai. 2018. Task-oriented dialogue system for automatic diagnosis. In Proceedings of the 56th Annual Meeting of the Association for Com- putational Linguistics (Volume 2: Short Papers), pages 201–207, Melbourne, Australia. Association for Computational Linguistics.
+
+Nicole Gray Weiskopf and Chunhua Weng. 2013. Methods and dimensions of electronic health record data quality assessment: enabling reuse for clinical research. Journal of the American Medical Infor- matics Association, 20(1):144–151.
+
+Lin Xu, Qixian Zhou, Ke Gong, Xiaodan Liang, Jian- End-to-end heng Tang, and Liang Lin. 2019. knowledge-routed relational dialogue system for au- tomatic diagnosis. CoRR, abs/1901.10623.
+
+Appendix
+
+A Feature Attribution Methods"|research_papers\Doctor_XAvIer_Explainable_Diagnosis_on_Physician-P.pdf|6b4575e2f38e4467af8a093f24daa8c1
+"Appendix
+
+A Feature Attribution Methods
+
+A.1 Shapley Values
+
+The Shapley value (Lundberg and Lee, 2017) —a method from cooperative game theory —assigns payouts to players depending on their contribution to the total payout in a cooperative game. Play- ers cooperate in a coalition and receive a certain proﬁt from this cooperation. In explainable AI, the game is the prediction task for a single instance in the dataset, the players are the feature values of a single instance that collaborate to make a predic- tion, and the gain is the prediction for an instance minus the average prediction for all instances (Sun- dararajan and Najmi, 2019). In other words, the Shapley value measures the contribution of each input feature to a model’s prediction for a single instance.
+
+A.2
+
+Integrated Gradients
+
+Integrated gradients (Sundararajan et al., 2017) is an XAI technique which attributes the prediction of a deep neural network to its input features. In- tegrated gradients attributes blame to an input fea- ture by using the absence of the input feature as a
+
+Primary Diagnosis Dialogues ADHD Depression Osteoporosis Inﬂuenza COPD Type II Diabetes Other
+
+99 72 26 95 55 14 46
+
+Table 6: Distribution of primary diagnoses in the Veri- logue dataset."|research_papers\Doctor_XAvIer_Explainable_Diagnosis_on_Physician-P.pdf|88ffcafc09304af3855dd9ca35a4d37a
+"99 72 26 95 55 14 46
+
+Table 6: Distribution of primary diagnoses in the Veri- logue dataset.
+
+baseline for comparing outcomes. For most deep networks, there exists a baseline in the input space where the prediction is neutral. For example, the baseline for an object recognition network can be a black image. Mathematically, integrated gradi- ents is deﬁned as the path integral of the gradients along the straightline path from the baseline x(cid:48) to the input x.
+
+B Area Under the Curve Approximation
+
+The area under the curve is approximated using the trapezoidal rule (Tai, 1994):
+
+(cid:90) 20
+
+AU C =
+
+f (x) dx
+
+≈
+
+0 N (cid:88)
+
+k=1
+
+f (xk−1) + f (xk) 2
+
+∆xk
+
+where 0 = x0 < x1 < ... < xN −1 < xN = 20 and ∆xk = xk − xk−1.
+
+C Additional Dataset Details
+
+Table 6 shows the distribution of diagnoses in the Verilogue dataset.
+
+D Additional Details for Joint NER and
+
+Intent Classiﬁcation
+
+D.1 Loss Function Equations
+
+Combining Eq. 2 and Eq. 3, the joint intent classi- ﬁcation and NER loss function is deﬁned as:
+
+L(f1(x; θ), y1, f2(x; θ), y2, α) = αL1(f1(x; θ), y1) + (1 − α)L2(f2(x; θ), y2)
+
+where α ∈ [0, 1].
+
+D.2 Training Hardware
+
+Training of the joint NER intent classiciation model was performed on a NVIDIA Quadro RTX 6000
+
+(6)
+
+(7)
+
+Feature Age Trouble making decisions and remembering things Taking Adderall Trouble focusing on a task Easily distracted Restlessness
+
+Attribution % 0.015 0.013 0.009 0.007 0.004 0.003"|research_papers\Doctor_XAvIer_Explainable_Diagnosis_on_Physician-P.pdf|25e9f3ee4c1a47f89d5c4bfb615aee0b
+"Attribution % 0.015 0.013 0.009 0.007 0.004 0.003
+
+Table 7: Examples of top features for classifying ADHD ranked by integrated gradients.
+
+Feature Weight Age Trouble focusing on a task Trouble making decisions and remembering things Easily distracted Systolic Blood Pressure
+
+Attribution % 0.003 0.002 0.002 0.002 0.002 0.002
+
+Table 8: Examples of top features for classifying ADHD ranked by Shapley values.
+
+GPU and took approximately two hours to ﬁnish training.
+
+E Additional Details for Primary
+
+Diagnosis Classiﬁcation
+
+E.1 Training Hardware
+
+Training of the primary diagnosis classiﬁcation model was performed on a NVIDIA Tesla K80 GPU and took approximately an hour to ﬁnish train- ing and evaluating all ﬁve models.
+
+F Additional Details for FAD Curve
+
+Analysis
+
+F.1 Feature Attribution Examples
+
+Examples of top features for classifying ADHD ranked by integrated gradients are shown in Table 7 and examples of top features for classifying ADHD ranked by Shapley values are shown in Table 8.
+
+F.2 Additional FAD Curves for Diagnosis
+
+Classiﬁcation
+
+The FAD curve for the diagnosis Other is seen in Figure 5.
+
+G Code
+
+The code is available at: https://github. com/hillary-ngai/doctor_XAvIer.
+
+Figure 5: K-fold cross-validation Other FAD curves."|research_papers\Doctor_XAvIer_Explainable_Diagnosis_on_Physician-P.pdf|68fbb0db03a642b0a4d805abe2f36630

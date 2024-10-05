@@ -1,6 +1,7 @@
 import requests
 import json
 
+
 class OllamaModel:
     def __init__(self, model, temperature=0):
         """
@@ -34,31 +35,32 @@ class OllamaModel:
             "prompt": prompt,
             "system": system_prompt,
             "stream": False,
-            "temperature": self.temperature,
+            "options": {
+                "temperature": self.temperature,
+                "num_thread": 8,
+            },
         }
 
         try:
             request_response = requests.post(
-                self.model_endpoint, 
-                headers=self.headers, 
-                data=json.dumps(payload)
+                self.model_endpoint, headers=self.headers, data=json.dumps(payload)
             )
-            
-            
+
             if request_response.status_code != 200:
-                raise requests.RequestException(f"API request failed with status code: {request_response.status_code}")
-            
+                raise requests.RequestException(
+                    f"API request failed with status code: {request_response.status_code}"
+                )
+
             request_response_json = request_response.json()
-            response = request_response_json.get('response')
-            
+            response = request_response_json.get("response")
+
             if not response:
                 raise ValueError("No 'response' key in the API response")
-            
-            
+
             response_dict = json.loads(response)
-            
+
             print(f"\n\nResponse from Ollama model: {response_dict}")
-            
+
             return response_dict
         except requests.RequestException as e:
             print(f"RequestException: {str(e)}")

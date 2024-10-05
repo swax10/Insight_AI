@@ -1,0 +1,100 @@
+node_1|node_2|edge|chunk_id
+back pain|neck pain|patient reports experiencing both back and neck pain|ab466248420347bfac6948e914ae3908
+pain|acetaminophen|patient mentions taking acetaminophen for pain relief|ab466248420347bfac6948e914ae3908
+pain|ibuprofen|patient mentions taking ibuprofen for pain relief|ab466248420347bfac6948e914ae3908
+emr data|data quality|lack of regulation in data quality makes EMR data difficult to use in machine learning systems due to incompleteness and inconsistency (Weiskopf and Weng, 2013; Roth et al., 2009)|e4e8b5219b0440568cb8fba939e445c0
+physician-patient dialogue|automated clinical note-taking|extracting relevant information directly from physician-patient dialogues can alleviate physicians of tedious data entry and ensures more consistent data quality (Collier, 2017)|e4e8b5219b0440568cb8fba939e445c0
+previous studies|machine learning systems|have shown that EMR data are difficult to use in machine learning systems due to the lack of regulation in data quality - Weiskopf and Weng (2013), Roth et al. (2009)|e4e8b5219b0440568cb8fba939e445c0
+tf-idf|text classification| tf-idf is a statistical method used for text classification.|dd6ada34f21948aa8439265a3a939b66
+existing work|patient-physician dialogues| Existing work employs more sophisticated NLP techniques to patient-physician dialogues.|dd6ada34f21948aa8439265a3a939b66
+deep learning|black-box nature| Most physicians are reluctant to rely on opaque, AI-based medical technology due to its black-box nature involving patient well-being.|dd6ada34f21948aa8439265a3a939b66
+information extraction|automatic diagnostic systems| There is increasing interest in using information extraction techniques in automatic diagnostic systems due to the potential in reducing costs associated with collecting patient information and diagnostic errors.|dd6ada34f21948aa8439265a3a939b66
+je-blee et al.|clinical conversations| Je-blee et al. Introduced a system that extracts pertinent medical information from clinical conversations for automatic note taking and diagnosis, but their methodology did not explore state-of-the-art NLP techniques, and entity extraction was done by searching the transcript for entities from medical lexicons.|dd6ada34f21948aa8439265a3a939b66
+doctor xavier|bert-based diagnostic system|Doctor XAvIer is a BERT-based diagnostic system that extracts relevant clinical data from transcribed patient-doctor dialogues.|bd2599f2863d46708b1e43460b2f872e
+transcribed patient-doctor dialogues|doctor xavier|Doctor XAvIer extracts relevant clinical data from transcribed patient-doctor dialogues.|bd2599f2863d46708b1e43460b2f872e
+feature attribution methods|doctor xavier|Doctor XAvIer presents feature attribution methods for explaining predictions.|bd2599f2863d46708b1e43460b2f872e
+bert-based diagnostic system|rel-evant clinical data|Doctor XAvIer extracts rel-evant clinical data from transcribed patient-doctor dialogues.|bd2599f2863d46708b1e43460b2f872e
+transcribed patient-doctor dialogues|relevant clinical data|Relevant clinical data is extracted from transcribed patient-doctor dialogues.|bd2599f2863d46708b1e43460b2f872e
+integrated gradients (ig)|feature attribution methods|Doctor XAvIer uses integrated gradients for feature attribution.|bd2599f2863d46708b1e43460b2f872e
+shapley values|feature attribution methods|Doctor XAvIer also uses Shapley values for feature attribution.|bd2599f2863d46708b1e43460b2f872e
+fad curve|performance metric|The FAD curve illustrates the explainability of a feature attribution method by plotting the performance metric against the percentage of features dropped in descending order of importance.|68119a1fe5864f3f9333ed0d62a09623
+fad curve|feature importance|We define feature importance as the absolute value of the feature attribution score to represent the magnitude of the contribution of each feature to the model’s prediction.|68119a1fe5864f3f9333ed0d62a09623
+fad curve|features dropped|For standard machine learning inputs, continuous features can sometimes be set to their means or image pixels can sometimes be set to black before dropping.|68119a1fe5864f3f9333ed0d62a09623
+fad curve|counterfactual explanations|The intuition behind FAD curves is inspired by counterfactual explanations.|68119a1fe5864f3f9333ed0d62a09623
+pareto principle|fad curve|If a feature attribution method accurately ranks the most important features for a certain prediction and the Pareto principle holds true, then cumulatively dropping the most important features in descending order should yield a smaller and smaller decrease in model performance for that prediction.|68119a1fe5864f3f9333ed0d62a09623
+fad curve|n-auc|The N-AUC is presented as a performance metric for feature attribution methods in relation to the FAD curve.|0e4fdb05eea04082aa3752ce645acea8
+fad curve|steepness early on|The steeper the FAD curve is early on, the better the feature attribution method.|0e4fdb05eea04082aa3752ce645acea8
+fad curve|auc bounded from 0% to β%|The AUC bounded from 0% to β% of features dropped in descending order of importance is calculated.|0e4fdb05eea04082aa3752ce645acea8
+fad curve|β|β=20 is chosen using the Pareto principle, but this number is just an estimate for calculating the AUC bounded from 0% to β%.|0e4fdb05eea04082aa3752ce645acea8
+verilogue dataset|dataset|The Verilogue dataset is a specific type of dataset, which falls under the broader category of datasets.|8a434a5a769b40738cdaa0ab0b16aab3
+800 physician-patient dialogues|dialogues|The Verilogue dataset contains 800 dialogues between physicians and patients, which fall under the category of dialogues.|8a434a5a769b40738cdaa0ab0b16aab3
+primary diagnosis|diagnosis|The Verilogue dataset includes the primary diagnosis for each dialogue, which is a type of diagnosis.|8a434a5a769b40738cdaa0ab0b16aab3
+patient's information|information|The patient's information included in the Verilogue dataset falls under the category of information.|8a434a5a769b40738cdaa0ab0b16aab3
+physician|person|In the context of the Verilogue dataset, a physician is a specific type of person.|8a434a5a769b40738cdaa0ab0b16aab3
+patient|person|In the context of the Verilogue dataset, a patient is a specific type of person.|8a434a5a769b40738cdaa0ab0b16aab3
+audio file|file|Each dialogue in the Verilogue dataset is provided as an audio file, which falls under the category of files.|8a434a5a769b40738cdaa0ab0b16aab3
+transcript|text|The Verilogue dataset includes a transcript for each dialogue, which falls under the category of text.|8a434a5a769b40738cdaa0ab0b16aab3
+speaker label|label|Each dialogue in the Verilogue dataset is labeled with speaker labels, which falls under the category of labels.|8a434a5a769b40738cdaa0ab0b16aab3
+primary diagnosis distribution|distribution|The primary diagnosis distribution within the Verilogue dataset falls under the broader category of distributions.|8a434a5a769b40738cdaa0ab0b16aab3
+symptom|pertinence|A symptom is either confirmed, denied or the patient is unsure of its pertinence to diagnosis.|20fc80809fe240b393de33ebcadab424
+dialogue|closing|Ending a dialogue indicates closing the conversation.|20fc80809fe240b393de33ebcadab424
+bio+clinical bert|biobert|BioBERT is a pre-trained language model for biomedical text that can be fine-tuned for clinical NLP tasks. This model, called Bio+Clinical BERT, was initialized from BioBERT and trained on all notes from MIMIC- III. The use of domain-specific pre-training improves the accuracy of clinical NLP tasks compared to general pre-training.|93e3b7bdfc724299abab15ebd7d0656b
+mimic-iii|bio+clinical bert|MIMIC-III is a database containing electronic health records from ICU patients. Bio+Clinical BERT, a pre-trained language model for clinical NLP tasks, was trained on all notes from MIMIC- III.|93e3b7bdfc724299abab15ebd7d0656b
+question-and-answer format|bio+clinical bert|In the majority of interactions between physician and patient in the dataset, the language model is given more context by concatenating the previous sequence with the current sequence, including speaker codes, before tokenization. This improves NER accuracy for Bio+Clinical BERT.|93e3b7bdfc724299abab15ebd7d0656b
+entity|bodily function|The term 'Entity' refers to a specific anatomical location or function in the body, as described by the term 'Bodily Function'|342ee28fddb949f4b7fd14f974b3a573
+instances p|intention|The term 'Instances P' refers to a specific intent or decision made by a patient, as described by the term 'Intention'|342ee28fddb949f4b7fd14f974b3a573
+instances p|closing|The term 'Instances P' refers to the conclusion or end result of a procedure, as described by the term 'Closing'|342ee28fddb949f4b7fd14f974b3a573
+r|f1|The term 'R' and 'F1' are metrics used to evaluate the performance of a named entity recognition model, as described in Table 2|342ee28fddb949f4b7fd14f974b3a573
+instances p|weighted avg|The term 'Weighted Avg' is a statistical measure used to calculate the average of a set of values, as described in Table 2|342ee28fddb949f4b7fd14f974b3a573
+extracted symptom from conversation|(cid:40) or (cid:15)|similarity between extracted symptom and pre-defined symptoms using SBERT embeddings. Assigned pre-defined symptom is the most similar one from set S.|5a53847d4bd0469eb8f59b795d07d48c
+another extracted symptom from conversation|(cid:15)|similarity between extracted symptom and pre-defined symptoms using SBERT embeddings. Assigned pre-defined symptom is directly matched from set S.|5a53847d4bd0469eb8f59b795d07d48c
+yet another extracted symptom from conversation|(cid:30)|similarity between extracted symptom and pre-defined symptoms using SBERT embeddings. Assigned pre-defined symptom is directly matched from set S.|5a53847d4bd0469eb8f59b795d07d48c
+doctor xavier|significant improvement|in weighted precision, recall, and F1-score for diagnosis classification compared to the baseline (Jeblee et al., 2019)|d5bac4d653854a1097308639cfcc17a5
+doctor xavier|baseline (jeblee et al., 2019)|the baseline used in the evaluation of Doctor XAvIer's performance for diagnosis classification|d5bac4d653854a1097308639cfcc17a5
+doctor xavier|weighted precision, recall, and f1-score|the specific evaluation metrics used to compare Doctor XAvIer's performance with the baseline for diagnosis classification|d5bac4d653854a1097308639cfcc17a5
+accuracy|integrated gradients|outperforms Shapley values according to FAD curve analysis for all diagnoses except Type II Diabetes, with noticeably steeper FAD curves for all diagnoses except Type II Diabetes.|37df1693976a43c18dc1784d2e4bbe03
+accuracy|shapley values|achieves larger N-AUCs than integrated gradients according to FAD curve analysis for all diagnoses except Type II Diabetes, with flatter FAD curves for all diagnoses except Type II Diabetes.|37df1693976a43c18dc1784d2e4bbe03
+diagnosis|adhd|n/a|37df1693976a43c18dc1784d2e4bbe03
+model|doctor xavier (jeblee et al., 2019)|n/a|37df1693976a43c18dc1784d2e4bbe03
+diagnosis|depression|n/a|37df1693976a43c18dc1784d2e4bbe03
+model|doctor xavier (jeblee et al., 2019)|n/a|37df1693976a43c18dc1784d2e4bbe03
+diagnosis|osteoporosis|n/a|37df1693976a43c18dc1784d2e4bbe03
+model|doctor xavier (jeblee et al., 2019)|n/a|37df1693976a43c18dc1784d2e4bbe03
+diagnosis|influenza|n/a|37df1693976a43c18dc1784d2e4bbe03
+model|doctor xavier (jeblee et al., 2019)|n/a|37df1693976a43c18dc1784d2e4bbe03
+diagnosis|copd|n/a|37df1693976a43c18dc1784d2e4bbe03
+model|doctor xavier (jeblee et al., 2019)|n/a|37df1693976a43c18dc1784d2e4bbe03
+diagnosis|type ii diabetes|n/a|37df1693976a43c18dc1784d2e4bbe03
+model|doctor xavier|n/a|37df1693976a43c18dc1784d2e4bbe03
+diagnosis|other|n/a|37df1693976a43c18dc1784d2e4bbe03
+weighted avg|(jeblee et al., 2019)|n/a|37df1693976a43c18dc1784d2e4bbe03
+diagnosis|adhd|achieves P=0.95 and R=0.97 for 20 instances.|37df1693976a43c18dc1784d2e4bbe03
+model|doctor xavier (jeblee et al., 2019)|n/a|37df1693976a43c18dc1784d2e4bbe03
+diagnosis|depression|achieves P=0.95 and R=0.95 for 24 instances.|37df1693976a43c18dc1784d2e4bbe03
+model|doctor xavier (jeblee et al., 2019)|n/a|37df1693976a43c18dc1784d2e4bbe03
+diagnosis|osteoporosis|achieves P=0.36 and R=0.95 for 48 instances.|37df1693976a43c18dc1784d2e4bbe03
+model|doctor xavier (jeblee et al., 2019)|n/a|37df1693976a43c18dc1784d2e4bbe03
+diagnosis|influenza|achieves P=0.59 and R=0.95 for 68 instances.|37df1693976a43c18dc1784d2e4bbe03
+model|doctor xavier (jeblee et al., 2019)|n/a|37df1693976a43c18dc1784d2e4bbe03
+diagnosis|copd|achieves P=0.73 and R=0.95 for 86 instances.|37df1693976a43c18dc1784d2e4bbe03
+model|doctor xavier (jeblee et al., 2019)|n/a|37df1693976a43c18dc1784d2e4bbe03
+diagnosis|type ii diabetes|achieves P=0.72 and R=0.95 for 48 instances.|37df1693976a43c18dc1784d2e4bbe03
+model|doctor xavier (jeblee et al., 2019)|n/a|37df1693976a43c18dc1784d2e4bbe03
+diagnosis|type ii diabetes|achieves P=0.72 and R=0.95 for 48 instances, but integrated gradients underperform Shapley values according to FAD curve analysis.|37df1693976a43c18dc1784d2e4bbe03
+model|doctor xavier|n/a|37df1693976a43c18dc1784d2e4bbe03
+diagnosis|other|achieves P=0.95 and R=0.96 for 147 instances.|37df1693976a43c18dc1784d2e4bbe03
+ai-driven healthcare|ethical challenges|The paper by Sara Gerke et al. Discusses the ethical implications of using AI in healthcare.|ca43bfba064141eb9c5644fabaeef433
+ai-driven healthcare|legal challenges|The paper by Sara Gerke et al. Also highlights the legal aspects related to AI-driven healthcare.|ca43bfba064141eb9c5644fabaeef433
+transformer-based language models|biomedical domain|Paul Grouchy et al. Evaluate the performance of transformer-based language models in the biomedical domain.|ca43bfba064141eb9c5644fabaeef433
+gaussian error linear units|nonlinearities and stochastic regularizers|Dan Hendrycks and Kevin Gimpel introduce Gaussian error linear units, which bridge nonlinearities and stochastic regularizers.|ca43bfba064141eb9c5644fabaeef433
+relevant patient dialogues|automated clinical note taking|Serena Jeblee et al. Present a method to extract relevant patient dialogues for automated clinical note taking.|ca43bfba064141eb9c5644fabaeef433
+mimic-iii database|critical care medicine|Alistair EW Johnson et al. Introduce MIMIC-III, a freely accessible critical care database.|ca43bfba064141eb9c5644fabaeef433
+corr|scott m. lundberg and su-in lee|2017 publication in CoRR by Scott M. Lundberg and Su-In Lee|7786c18430ad42f5afaa45ee74e64419
+aniek f. markus, jan a. kors, and peter r. rijnbeek|journal of biomedical informatics|2021 publication in Journal of Biomedical Informatics by Aniek F. Markus, Jan A. Kors, and Peter R. Rijnbeek|7786c18430ad42f5afaa45ee74e64419
+hillary ngai, yoona park, john chen, and mah-boobeh parsapoor|corr|2021 publication in CoRR by Hillary Ngai, Yoona Park, John Chen, and Mah-boobeh Parsapoor|7786c18430ad42f5afaa45ee74e64419
+vilfredo pareto|cours d’économie politique|volume 1 of Cours d’économie politique by Vilfredo Pareto|7786c18430ad42f5afaa45ee74e64419
+lance ramshaw and mitch marcus|third conference on very large corpora|1995 workshop presentation by Lance Ramshaw and Mitch Marcus at the Third conference on Very Large Corpora|7786c18430ad42f5afaa45ee74e64419
+nils reimers and iryna gurevych|corr|2019 publication in CoRR by Nils Reimers and Iryna Gurevych|7786c18430ad42f5afaa45ee74e64419
+marco roccetti, giovanni delnevo, luca casini, and silvia mirri|journal of big data|Publication in Journal of Big Data by Marco Roccetti, Giovanni Delnevo, Luca Casini, and Silvia Mirri|7786c18430ad42f5afaa45ee74e64419
+carol p. roth, yee-wei lim, joshua m. pevnick, steven m. asch, and elizabeth a. mcglynn|american journal of medi- cal quality|2009 publication in American Journal of Medi- cal Quality by Carol P. Roth, Yee-Wei Lim, Joshua M. Pevnick, Steven M. Asch, and Elizabeth A. McGlynn|7786c18430ad42f5afaa45ee74e64419
+sai p. selvaraj and sandeep konam|corr|2019 publication in CoRR by Sai P. Selvaraj and Sandeep Konam|7786c18430ad42f5afaa45ee74e64419

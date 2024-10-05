@@ -1,5 +1,6 @@
 import sys
 from yachalk import chalk
+
 sys.path.append("..")
 
 import json
@@ -7,9 +8,10 @@ from models.ollama_models import OllamaModel
 
 # Initialize the OllamaModel client
 
+
 def extractConcepts(prompt: str, metadata={}, model=None):
     if model == None:
-        client = OllamaModel(model="mistral-openorca:7b-q3_K_S")
+        client = OllamaModel(model="llama3.2:latest")
     else:
         client = OllamaModel(model=model)
 
@@ -34,7 +36,7 @@ def extractConcepts(prompt: str, metadata={}, model=None):
     )
     response = client.generate_text(prompt=prompt, system_prompt=SYS_PROMPT)
     try:
-        #result = json.loads(response)
+        # result = json.loads(response)
         result = [dict(item, **metadata) for item in response.values()]
     except:
         print("\n\nERROR ### Here is the buggy response: ", response, "\n\n")
@@ -44,7 +46,7 @@ def extractConcepts(prompt: str, metadata={}, model=None):
 
 def graphPrompt(input: str, metadata={}, model=None):
     if model == None:
-        client = OllamaModel(model="mistral-openorca:7b-q3_K_S")
+        client = OllamaModel(model="llama3.2:latest")
     else:
         client = OllamaModel(model=model)
     # model_info = client.show(model_name=model)
@@ -55,12 +57,12 @@ def graphPrompt(input: str, metadata={}, model=None):
         "You are provided with a context chunk (delimited by ```) Your task is to extract the ontology "
         "of terms mentioned in the given context. These terms should represent the key concepts as per the context. \n"
         "Thought 1: While traversing through each sentence, Think about the key terms mentioned in it.\n"
-            "\tTerms may include object, entity, location, organization, person, \n"
-            "\tcondition, acronym, documents, service, concept, etc.\n"
-            "\tTerms should be as atomistic as possible\n\n"
+        "\tTerms may include object, entity, location, organization, person, \n"
+        "\tcondition, acronym, documents, service, concept, etc.\n"
+        "\tTerms should be as atomistic as possible\n\n"
         "Thought 2: Think about how these terms can have one on one relation with other terms.\n"
-            "\tTerms that are mentioned in the same sentence or the same paragraph are typically related to each other.\n"
-            "\tTerms can be related to many other terms\n\n"
+        "\tTerms that are mentioned in the same sentence or the same paragraph are typically related to each other.\n"
+        "\tTerms can be related to many other terms\n\n"
         "Thought 3: Find out the relation between each such related pair of terms. \n\n"
         "Format your output as a list of json. Each element of the list contains a pair of terms"
         "and the relation between them, like the follwing: \n"

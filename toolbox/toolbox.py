@@ -25,5 +25,5 @@ class ToolBox:
         """
         tools_str = ""
         for name, doc in self.tools_dict.items():
-            tools_str += f"{name}: \"{doc}\"\n"
+            tools_str += f'{name}: "{doc}"\n'
         return tools_str.strip()

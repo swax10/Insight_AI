@@ -8,6 +8,7 @@ from .prompts import graphPrompt
 # Enable tqdm for pandas
 tqdm.pandas()
 
+
 def documents2Dataframe(documents) -> pd.DataFrame:
     rows = []
     for chunk in documents:
@@ -67,4 +68,3 @@ def graph2Df(nodes_list) -> pd.DataFrame:
     graph_dataframe["node_2"] = graph_dataframe["node_2"].apply(lambda x: x.lower())
 
     return graph_dataframe
-
