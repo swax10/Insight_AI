@@ -10,6 +10,11 @@ import community as community_louvain
 import plotly.graph_objects as go
 import pickle
 import os
+import time
+from tqdm import tqdm
+from pyvis.network import Network
+import glob
+
 
 print(os.getcwd())
 from rd import (
@@ -36,6 +41,7 @@ class GraphVisualization:
         dfg["chunk_id"] = dfg["chunk_id"].astype(str)
         dfg["edge"] = dfg["edge"].astype(str)
 
+        # Group data to merge edges and chunk_ids for the same node pairs
         dfg = (
             dfg.groupby(["node_1", "node_2"])
             .agg({"chunk_id": ",".join, "edge": ",".join})
@@ -44,24 +50,40 @@ class GraphVisualization:
 
         nodes = pd.concat([dfg["node_1"], dfg["node_2"]], axis=0).unique()
 
+        # Add nodes to the graph
         for node in nodes:
             self.G.add_node(str(node))
 
+        # Add edges to the graph
         for index, row in dfg.iterrows():
             self.G.add_edge(
                 str(row["node_1"]), str(row["node_2"]), title=row["edge"], weight=1
             )
 
+        #remove duplicates
+        #self.remove_duplicates_in_batches()
+        # Detect communities in the graph
         community_partition = self.detect_communities()
+
+        # Add source nodes and edges to the graph
         for community in community_partition:
             most_connected_node = max(community, key=lambda node: self.G.degree[node])
+
+            # Filter to get the rows where node_1 is the most connected node
             source_rows = self.dfg1[self.dfg1["node_1"] == most_connected_node]
+
             if not source_rows.empty:
                 source_node = str(source_rows["source"].values[0])
-                self.G.add_node(source_node)
-                self.G.add_edge(
-                    most_connected_node, source_node, title="sourced from", weight=1
-                )
+
+                if source_node != 'nan':  # Check if source node exists and is valid
+                    # Add the source node if it doesn't already exist
+                    if not self.G.has_node(source_node):
+                        self.G.add_node(source_node)
+
+                    # Add an edge between the most connected node and the source node
+                    self.G.add_edge(
+                        most_connected_node, source_node, title="sourced from", weight=1
+                    )
 
     def detect_communities(self):
         partition = community_louvain.best_partition(self.G)
@@ -107,76 +129,88 @@ class GraphVisualization:
             print(f"No file found at {filename}. Please check the path or file name.")
 
     def visualize_graph(self):
-        pos = nx.spring_layout(self.G, k=0.1)
+        net = Network(notebook=False, height='750px', width='100%', bgcolor='#ffffff', font_color='black')
 
-        node_x = [pos[node][0] for node in self.G.nodes()]
-        node_y = [pos[node][1] for node in self.G.nodes()]
-        colors = [self.G.nodes[node]["color"] for node in self.G.nodes()]
+        # Set options for better visualization (you can customize this further)
+        net.set_options("""
+        var options = {
+          "nodes": {
+            "shape": "dot",
+            "size": 16,
+            "font": {
+              "size": 14,
+              "face": "Tahoma"
+            }
+          },
+          "edges": {
+            "width": 0.15,
+            "color": {
+              "inherit": true
+            },
+            "smooth": {
+              "type": "continuous"
+            }
+          },
+          "physics": {
+            "forceAtlas2Based": {
+              "gravitationalConstant": -50,
+              "centralGravity": 0.01,
+              "springLength": 100,
+              "springConstant": 0.08
+            },
+            "minVelocity": 0.75,
+            "solver": "forceAtlas2Based"
+          }
+        }
+        """)
 
-        degrees = np.array([self.G.degree[node] for node in self.G.nodes()])
+        # Add nodes with hover text and color
+        for node, node_data in self.G.nodes(data=True):
+            # Get connected nodes and their relationships
+            connected_info = self.get_connected_nodes_with_relationships(node)
+            relationships = ", ".join(
+                [f"{info['connected_node']} ({info['relationship']})" for info in connected_info]
+            ) if connected_info else "No connections"
 
-        min_size, max_size = 10, 50
-        if len(degrees) > 1:
-            normalized_sizes = min_size + (degrees - degrees.min()) * (
-                max_size - min_size
-            ) / (degrees.max() - degrees.min())
-        else:
-            normalized_sizes = np.full_like(degrees, min_size)
+            title = f"Node {node}: {node_data.get('label', '')}\nConnections: {relationships}"
+            color = node_data.get('color', 'blue')  # Default color if not provided
+            net.add_node(node, label=str(node), title=title, color=color)
 
-        edge_x = []
-        edge_y = []
-        for edge in self.G.edges():
-            x0, y0 = pos[edge[0]]
-            x1, y1 = pos[edge[1]]
-            edge_x.extend([x0, x1, None])
-            edge_y.extend([y0, y1, None])
+        # Add edges with hover text showing relationship and weight
+        for node1, node2, edge_data in self.G.edges(data=True):
+            title = f"Edge {node1} - {node2}: {edge_data.get('title', 'unknown')} (Weight: {edge_data.get('weight', 1)})"
+            net.add_edge(node1, node2, title=title, value=edge_data.get('weight', 1))  # Default weight 1 if none exists
 
-        fig = go.Figure()
+        net.write_html("interactive_graph.html")
+        # Open HTML file in browser
+        os.system("start interactive_graph.html")
 
-        fig.add_trace(
-            go.Scatter(
-                x=edge_x,
-                y=edge_y,
-                line=dict(width=1, color="black"),
-                hoverinfo="none",
-                mode="lines",
-            )
-        )
 
-        fig.add_trace(
-            go.Scatter(
-                x=node_x,
-                y=node_y,
-                mode="markers",
-                marker=dict(size=normalized_sizes, color=colors, line=dict(width=1)),
-                hoverinfo="none",
-            )
-        )
+    def get_connected_nodes_with_relationships(self, node, depth=1):
+        """Retrieve all nodes connected to a specific node, their relationships, 
+        and sub-connected nodes up to a specified depth."""
 
-        fig.update_layout(
-            title="Interactive Graph Visualization",
-            showlegend=False,
-            hovermode="closest",
-            margin=dict(b=0, l=0, r=0, t=40),
-            xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
-            yaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
-        )
-
-        fig.write_html("interactive_graph.html")
-        fig.show()
-
-    def get_connected_nodes_with_relationships(self, node):
-        """Retrieve all nodes connected to a specific node and their relationships."""
         if node not in self.G:
             print(f"Node {node} not found in the graph.")
             return None
 
-        connected_nodes = list(self.G[node].items())
-        result = [
-            {"connected_node": n, "relationship": data.get("title", "unknown")}
-            for n, data in connected_nodes
-        ]
-        return result
+        def recursive_retrieval(current_node, current_depth):
+            if current_depth > depth:
+                return []
+
+            connected_nodes = list(self.G[current_node].items())
+            result = []
+
+            for n, data in connected_nodes:
+                result.append({
+                    "connected_node": n,
+                    "relationship": data.get("title", "unknown"),
+                    "sub_connected": recursive_retrieval(n, current_depth + 1)
+                })
+
+            return result
+
+        return recursive_retrieval(node, 1)
 
     def remove_duplicates_in_batches(self):
         edges = [
@@ -190,10 +224,22 @@ class GraphVisualization:
         unique_edges = []
 
         # Send edges in batches of 25
-        for i in range(0, len(edges), 25):
-            batch = edges[i : i + 25]
+        for i in tqdm(range(0, len(edges), 50)):
+            batch = edges[i : i + 50]
             edges_json = json.dumps({"edges": batch})
-            unique_edges_json = remove_duplicate_edges_with_ollama(edges_json)
+
+            # Retry logic directly within the loop
+            for attempt in range(5):  # Retry up to 5 times
+                try:
+                    unique_edges_json = remove_duplicate_edges_with_ollama(edges_json)
+                    break  # If successful, break out of retry loop
+                except Exception as e:
+                    print(f"Attempt {attempt+1} failed for batch {i}: {e}")
+                    time.sleep(2 ** attempt)  # Exponential backoff
+            else:
+                print(f"Failed to process batch {i} after 5 attempts, skipping")
+                continue
+
             unique_edges_data = json.loads(unique_edges_json)
             unique_edges.extend(unique_edges_data["edges"])
 
@@ -207,7 +253,6 @@ class GraphVisualization:
     def run(self):
         self.clean_data()
         self.process_graph()
-        self.remove_duplicates_in_batches()  # Remove duplicates in batches
         communities = self.detect_communities()
         self.assign_colors_to_communities(communities)
         self.visualize_graph()
@@ -224,10 +269,30 @@ if __name__ == "__main__":
         "data_output/research_papers/chunks.csv", sep="|", low_memory=False
     )  # Adjust this line according to your data source
     gv = GraphVisualization(df1, df2)
-    # gv.run()  # Uncomment to run the entire process
-    gv.load_graph("pain_graph.pkl")
-    gv.remove_duplicates_in_batches()
-    connected_nodes = gv.get_connected_nodes_with_relationships("pain")
-    print(connected_nodes)
-    # number of nodes
-    print(f"Number of nodes: {gv.G.number_of_nodes()}")
+    gv.load_graph("graph.pkl")
+    x = gv.get_connected_nodes_with_relationships("llms")
+    print(x)
+    #gv.run()
+    #list_of_files = []
+    #for file in glob.glob("research_papers/*.pdf"):
+    #    #replace \\ with \ in the path 
+    #    file = str(file)
+    #    #add the path to a list in for on strings
+    #    list_of_files.append(file)
+    #all_text = []
+    #for item in list_of_files:
+    #    x = gv.get_connected_nodes_with_relationships(item, depth=3)
+    #    #one entery from x = [{'connected_node': 'rag', 'relationship': 'sourced from', 'sub_connected': []}, {'connected_node': 'rag', 'relationship': 'sourced from', 'sub_connected': []}]
+    #    for i in x:
+    #        text = f"Node {item} is connect to {i['connected_node']} because of ({i['relationship']})"
+    #        all_text.append(text)
+    #        for j in i['sub_connected']:
+    #            text += f"Node {i['connected_node']} is connect to {j['connected_node']} because of ({j['relationship']})"
+    #            all_text.append(text)
+    ##save the text to a file
+    #with open("data_output/research_papers/connected_nodes.txt", "w", encoding="utf-8") as f:
+    #    for item in all_text:
+    #        f.write("%s\n" % item)
+    
+    
+   
