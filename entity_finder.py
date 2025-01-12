@@ -43,9 +43,7 @@ with open("entity_extraction_responses_without_ec.json", "r") as json_file:
 
 with open("entity_extraction_responses_chunkes_with_errors.json", "r") as json_file:
     chunkes_with_errors = json.load(json_file)
-    chunkes_with_errors = set(list(chunkes_with_errors))
-
-chunkes_with_errors = []
+    chunkes_with_errors = list(chunkes_with_errors)
 # rate limit of 10 per minute
 requests = 0
 last_time = time.time()
