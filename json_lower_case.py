@@ -12,10 +12,10 @@ def make_lowercase(obj):
         return obj
 
 
-with open("entity_relation_extraction_responses_with_ec.json.json", "r") as f:
+with open("entity_with_description_responses_with_ec.json", "r") as f:
     data = json.load(f)
 
 data = make_lowercase(data)
 
-with open("entity_extraction_responses_with_ec.json", "w") as f:
+with open("entity_with_description_responses_with_ec.json", "w") as f:
     json.dump(data, f)
